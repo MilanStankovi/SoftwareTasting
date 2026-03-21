@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Management Frontend</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div>
+        <p class="eyebrow">Event Management Platform</p>
+        <h1>Admin Dashboard</h1>
+        <p class="subtitle">Manage organizers, venues, events and registrations from one place.</p>
+      </div>
+      <div class="header-status">
+        <span class="dot"></span>
+        <span id="apiStatusText">API ready</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel hero-panel">
+      <div class="panel-top">
+        <div>
+          <label for="apiBaseUrl">API Base URL</label>
+          <input id="apiBaseUrl" type="text" value="http://localhost:5227/api">
+        </div>
+        <button id="seedBtn" class="secondary">Run Seed</button>
+      </div>
+
+      <nav class="tabs" id="tabs"></nav>
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section class="panel" id="entityPanel">
+      <h2 id="entityTitle"></h2>
+      <p id="entitySubtitle" class="muted"></p>
+
+      <div class="grid-2">
+        <form id="createForm" class="card">
+          <h3>Create</h3>
+          <div id="createFields" class="fields"></div>
+          <button type="submit">Create</button>
+        </form>
+
+        <form id="updateForm" class="card">
+          <h3>Update</h3>
+          <div class="fields">
+            <label for="updateId">ID</label>
+            <input id="updateId" name="id" required>
+          </div>
+          <div id="updateFields" class="fields"></div>
+          <button type="submit">Update</button>
+        </form>
+      </div>
+
+      <div class="grid-2">
+        <form id="getByIdForm" class="card">
+          <h3>Get By ID</h3>
+          <div class="fields">
+            <label for="getByIdInput">ID</label>
+            <input id="getByIdInput" required>
+          </div>
+          <button type="submit" class="secondary">Get One</button>
+        </form>
+
+        <form id="deleteForm" class="card">
+          <h3>Delete</h3>
+          <div class="fields">
+            <label for="deleteIdInput">ID</label>
+            <input id="deleteIdInput" required>
+          </div>
+          <button type="submit" class="danger">Delete</button>
+        </form>
+      </div>
+
+      <div class="actions">
+        <input id="searchInput" class="search-input" placeholder="Search loaded data...">
+        <button id="loadAllBtn" class="secondary">Load All</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Response</h2>
+      <pre id="responseBox">No request yet.</pre>
+    </section>
+
+    <section class="panel">
+      <h2>Data Table</h2>
+      <div class="table-wrap">
+        <table id="resultsTable">
+          <thead id="resultsHead"></thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
