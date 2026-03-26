@@ -8,9 +8,9 @@ namespace backend.Controllers;
 [Route("api/[controller]")]
 public class RegistrationsController : ControllerBase
 {
-    private readonly RegistrationRepository _registrationRepository;
+    private readonly IRegistrationRepository _registrationRepository;
 
-    public RegistrationsController(RegistrationRepository registrationRepository)
+    public RegistrationsController(IRegistrationRepository registrationRepository)
     {
         _registrationRepository = registrationRepository;
     }
@@ -23,8 +23,12 @@ public class RegistrationsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Registration>> GetById(string id)
+    public async Task<ActionResult<Registration>> GetById(string? id)
     {
+        if (string.IsNullOrEmpty(id))
+        {
+            return BadRequest("Id cannot be null or empty.");
+        }
         var registration = await _registrationRepository.GetByIdAsync(id);
         if (registration is null)
         {
@@ -35,15 +39,23 @@ public class RegistrationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Registration>> Create([FromBody] Registration registration)
+    public async Task<ActionResult<Registration>> Create([FromBody] Registration? registration)
     {
+        if (registration is null)
+        {
+            return BadRequest("Registration cannot be null.");
+        }
         var createdRegistration = await _registrationRepository.CreateAsync(registration);
         return CreatedAtAction(nameof(GetById), new { id = createdRegistration.Id }, createdRegistration);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] Registration registration)
+    public async Task<IActionResult> Update(string? id, [FromBody] Registration? registration)
     {
+        if (string.IsNullOrEmpty(id) || registration is null || registration.Id != id)
+        {
+            return BadRequest("Invalid id or registration data.");
+        }
         var updated = await _registrationRepository.UpdateAsync(id, registration);
         if (!updated)
         {
@@ -54,8 +66,12 @@ public class RegistrationsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    public async Task<IActionResult> Delete(string? id)
     {
+        if (string.IsNullOrEmpty(id))
+        {
+            return BadRequest("Id cannot be null or empty.");
+        }
         var deleted = await _registrationRepository.DeleteAsync(id);
         if (!deleted)
         {

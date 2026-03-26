@@ -3,7 +3,7 @@ using MongoDB.Driver;
 
 namespace backend.Repositories;
 
-public class RegistrationRepository
+public class RegistrationRepository : IRegistrationRepository
 {
     private readonly IMongoCollection<Registration> _registrationsCollection;
 

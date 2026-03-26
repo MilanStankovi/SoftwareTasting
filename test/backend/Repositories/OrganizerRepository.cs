@@ -3,7 +3,7 @@ using MongoDB.Driver;
 
 namespace backend.Repositories;
 
-public class OrganizerRepository
+public class OrganizerRepository : IOrganizerRepository
 {
     private readonly IMongoCollection<Organizer> _organizersCollection;
 

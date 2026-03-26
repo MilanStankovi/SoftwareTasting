@@ -26,10 +26,10 @@ if (string.IsNullOrWhiteSpace(mongoConnectionString))
 }
 
 builder.Services.AddSingleton<IMongoClient>(_ => new MongoClient(mongoConnectionString));
-builder.Services.AddScoped<EventRepository>();
-builder.Services.AddScoped<OrganizerRepository>();
-builder.Services.AddScoped<VenueRepository>();
-builder.Services.AddScoped<RegistrationRepository>();
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
+builder.Services.AddScoped<IVenueRepository, VenueRepository>();
+builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 
 var app = builder.Build();
 

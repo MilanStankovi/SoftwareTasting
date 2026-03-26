@@ -3,7 +3,7 @@ using MongoDB.Driver;
 
 namespace backend.Repositories;
 
-public class EventRepository
+public class EventRepository : IEventRepository
 {
     private readonly IMongoCollection<Event> _eventsCollection;
 

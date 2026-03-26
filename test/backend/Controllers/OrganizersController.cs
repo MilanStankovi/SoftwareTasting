@@ -8,9 +8,9 @@ namespace backend.Controllers;
 [Route("api/[controller]")]
 public class OrganizersController : ControllerBase
 {
-    private readonly OrganizerRepository _organizerRepository;
+    private readonly IOrganizerRepository _organizerRepository;
 
-    public OrganizersController(OrganizerRepository organizerRepository)
+    public OrganizersController(IOrganizerRepository organizerRepository)
     {
         _organizerRepository = organizerRepository;
     }
@@ -23,8 +23,12 @@ public class OrganizersController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Organizer>> GetById(string id)
+    public async Task<ActionResult<Organizer>> GetById(string? id)
     {
+        if (string.IsNullOrEmpty(id))
+        {
+            return BadRequest("Id cannot be null or empty.");
+        }
         var organizer = await _organizerRepository.GetByIdAsync(id);
         if (organizer is null)
         {
@@ -35,15 +39,23 @@ public class OrganizersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Organizer>> Create([FromBody] Organizer organizer)
+    public async Task<ActionResult<Organizer>> Create([FromBody] Organizer? organizer)
     {
+        if (organizer is null)
+        {
+            return BadRequest("Organizer cannot be null.");
+        }
         var createdOrganizer = await _organizerRepository.CreateAsync(organizer);
         return CreatedAtAction(nameof(GetById), new { id = createdOrganizer.Id }, createdOrganizer);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] Organizer organizer)
+    public async Task<IActionResult> Update(string? id, [FromBody] Organizer? organizer)
     {
+        if (string.IsNullOrEmpty(id) || organizer is null || organizer.Id != id)
+        {
+            return BadRequest("Invalid id or organizer data.");
+        }
         var updated = await _organizerRepository.UpdateAsync(id, organizer);
         if (!updated)
         {
@@ -54,8 +66,12 @@ public class OrganizersController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    public async Task<IActionResult> Delete(string? id)
     {
+        if (string.IsNullOrEmpty(id))
+        {
+            return BadRequest("Id cannot be null or empty.");
+        }
         var deleted = await _organizerRepository.DeleteAsync(id);
         if (!deleted)
         {

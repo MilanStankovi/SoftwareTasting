@@ -8,9 +8,9 @@ namespace backend.Controllers;
 [Route("api/[controller]")]
 public class VenuesController : ControllerBase
 {
-    private readonly VenueRepository _venueRepository;
+    private readonly IVenueRepository _venueRepository;
 
-    public VenuesController(VenueRepository venueRepository)
+    public VenuesController(IVenueRepository venueRepository)
     {
         _venueRepository = venueRepository;
     }
@@ -23,8 +23,12 @@ public class VenuesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Venue>> GetById(string id)
+    public async Task<ActionResult<Venue>> GetById(string? id)
     {
+        if (string.IsNullOrEmpty(id))
+        {
+            return BadRequest("Id cannot be null or empty.");
+        }
         var venue = await _venueRepository.GetByIdAsync(id);
         if (venue is null)
         {
@@ -35,15 +39,23 @@ public class VenuesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Venue>> Create([FromBody] Venue venue)
+    public async Task<ActionResult<Venue>> Create([FromBody] Venue? venue)
     {
+        if (venue is null)
+        {
+            return BadRequest("Venue cannot be null.");
+        }
         var createdVenue = await _venueRepository.CreateAsync(venue);
         return CreatedAtAction(nameof(GetById), new { id = createdVenue.Id }, createdVenue);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] Venue venue)
+    public async Task<IActionResult> Update(string? id, [FromBody] Venue? venue)
     {
+        if (string.IsNullOrEmpty(id) || venue is null || venue.Id != id)
+        {
+            return BadRequest("Invalid id or venue data.");
+        }
         var updated = await _venueRepository.UpdateAsync(id, venue);
         if (!updated)
         {
@@ -54,8 +66,12 @@ public class VenuesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    public async Task<IActionResult> Delete(string? id)
     {
+        if (string.IsNullOrEmpty(id))
+        {
+            return BadRequest("Id cannot be null or empty.");
+        }
         var deleted = await _venueRepository.DeleteAsync(id);
         if (!deleted)
         {
