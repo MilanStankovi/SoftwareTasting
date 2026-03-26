@@ -200,4 +200,45 @@ public class OrganizerTests
         // Assert
         Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
     }
+
+    [Test]
+    public async Task GetAll_ReturnsCorrectCount()
+    {
+        // Arrange
+        var organizers = new List<Organizer>
+        {
+            new Organizer { Id = "1", Name = "Org 1" },
+            new Organizer { Id = "2", Name = "Org 2" },
+            new Organizer { Id = "3", Name = "Org 3" }
+        };
+        _mockOrganizerRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(organizers);
+
+        // Act
+        var result = await _controller.GetAll();
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.That(okResult, Is.Not.Null);
+        var value = okResult.Value as List<Organizer>;
+        Assert.That(value, Is.Not.Null);
+        Assert.That(value.Count, Is.EqualTo(3));
+    }
+
+    [Test]
+    public async Task Create_CallsRepository_AndReturnsCreated()
+    {
+        // Arrange
+        var newOrganizer = new Organizer { Name = "Caller Org", Email = "call@example.com" };
+        var createdOrganizer = new Organizer { Id = "10", Name = "Caller Org", Email = "call@example.com" };
+        _mockOrganizerRepository.Setup(repo => repo.CreateAsync(It.IsAny<Organizer>())).ReturnsAsync(createdOrganizer);
+
+        // Act
+        var result = await _controller.Create(newOrganizer);
+
+        // Assert
+        _mockOrganizerRepository.Verify(repo => repo.CreateAsync(It.Is<Organizer>(o => o.Name == newOrganizer.Name && o.Email == newOrganizer.Email)), Times.Once);
+        var createdResult = result.Result as CreatedAtActionResult;
+        Assert.That(createdResult, Is.Not.Null);
+        Assert.That(createdResult.Value, Is.EqualTo(createdOrganizer));
+    }
 }

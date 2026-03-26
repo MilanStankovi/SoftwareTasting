@@ -200,4 +200,45 @@ public class VenueTests
         // Assert
         Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
     }
+
+    [Test]
+    public async Task GetAll_ReturnsCorrectCount()
+    {
+        // Arrange
+        var venues = new List<Venue>
+        {
+            new Venue { Id = "1", Name = "V1" },
+            new Venue { Id = "2", Name = "V2" },
+            new Venue { Id = "3", Name = "V3" }
+        };
+        _mockVenueRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(venues);
+
+        // Act
+        var result = await _controller.GetAll();
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.That(okResult, Is.Not.Null);
+        var value = okResult.Value as List<Venue>;
+        Assert.That(value, Is.Not.Null);
+        Assert.That(value.Count, Is.EqualTo(3));
+    }
+
+    [Test]
+    public async Task Create_CallsRepository_AndReturnsCreated()
+    {
+        // Arrange
+        var newVenue = new Venue { Name = "Caller Venue", Address = "Addr" };
+        var createdVenue = new Venue { Id = "30", Name = "Caller Venue", Address = "Addr" };
+        _mockVenueRepository.Setup(repo => repo.CreateAsync(It.IsAny<Venue>())).ReturnsAsync(createdVenue);
+
+        // Act
+        var result = await _controller.Create(newVenue);
+
+        // Assert
+        _mockVenueRepository.Verify(repo => repo.CreateAsync(It.Is<Venue>(v => v.Name == newVenue.Name && v.Address == newVenue.Address)), Times.Once);
+        var createdResult = result.Result as CreatedAtActionResult;
+        Assert.That(createdResult, Is.Not.Null);
+        Assert.That(createdResult.Value, Is.EqualTo(createdVenue));
+    }
 }
