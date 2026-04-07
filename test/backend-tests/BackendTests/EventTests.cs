@@ -200,4 +200,45 @@ public class EventTests
         // Assert
         Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
     }
+
+    [Test]
+    public async Task GetAll_ReturnsCorrectCount()
+    {
+        // Arrange
+        var events = new List<Event>
+        {
+            new Event { Id = "1", Title = "E1" },
+            new Event { Id = "2", Title = "E2" },
+            new Event { Id = "3", Title = "E3" }
+        };
+        _mockEventRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(events);
+
+        // Act
+        var result = await _controller.GetAll();
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.That(okResult, Is.Not.Null);
+        var value = okResult.Value as List<Event>;
+        Assert.That(value, Is.Not.Null);
+        Assert.That(value.Count, Is.EqualTo(3));
+    }
+
+    [Test]
+    public async Task Create_CallsRepository_AndReturnsCreated()
+    {
+        // Arrange
+        var newEvent = new Event { Title = "Caller Event", Description = "Desc" };
+        var createdEvent = new Event { Id = "20", Title = "Caller Event", Description = "Desc" };
+        _mockEventRepository.Setup(repo => repo.CreateAsync(It.IsAny<Event>())).ReturnsAsync(createdEvent);
+
+        // Act
+        var result = await _controller.Create(newEvent);
+
+        // Assert
+        _mockEventRepository.Verify(repo => repo.CreateAsync(It.Is<Event>(e => e.Title == newEvent.Title && e.Description == newEvent.Description)), Times.Once);
+        var createdResult = result.Result as CreatedAtActionResult;
+        Assert.That(createdResult, Is.Not.Null);
+        Assert.That(createdResult.Value, Is.EqualTo(createdEvent));
+    }
 }

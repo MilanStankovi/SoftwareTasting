@@ -200,4 +200,45 @@ public class RegistrationTests
         // Assert
         Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
     }
+
+    [Test]
+    public async Task GetAll_ReturnsCorrectCount()
+    {
+        // Arrange
+        var registrations = new List<Registration>
+        {
+            new Registration { Id = "1", AttendeeFullName = "A1" },
+            new Registration { Id = "2", AttendeeFullName = "A2" },
+            new Registration { Id = "3", AttendeeFullName = "A3" }
+        };
+        _mockRegistrationRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(registrations);
+
+        // Act
+        var result = await _controller.GetAll();
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        Assert.That(okResult, Is.Not.Null);
+        var value = okResult.Value as List<Registration>;
+        Assert.That(value, Is.Not.Null);
+        Assert.That(value.Count, Is.EqualTo(3));
+    }
+
+    [Test]
+    public async Task Create_CallsRepository_AndReturnsCreated()
+    {
+        // Arrange
+        var newRegistration = new Registration { AttendeeFullName = "Caller Attendee", AttendeeEmail = "a@example.com" };
+        var createdRegistration = new Registration { Id = "40", AttendeeFullName = "Caller Attendee", AttendeeEmail = "a@example.com" };
+        _mockRegistrationRepository.Setup(repo => repo.CreateAsync(It.IsAny<Registration>())).ReturnsAsync(createdRegistration);
+
+        // Act
+        var result = await _controller.Create(newRegistration);
+
+        // Assert
+        _mockRegistrationRepository.Verify(repo => repo.CreateAsync(It.Is<Registration>(r => r.AttendeeFullName == newRegistration.AttendeeFullName && r.AttendeeEmail == newRegistration.AttendeeEmail)), Times.Once);
+        var createdResult = result.Result as CreatedAtActionResult;
+        Assert.That(createdResult, Is.Not.Null);
+        Assert.That(createdResult.Value, Is.EqualTo(createdRegistration));
+    }
 }
